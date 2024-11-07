@@ -59,6 +59,10 @@ int startDecimalToBaseConversion()
     case MEMORY_ERROR:
         printf("Unexpected error occurred.");
         break;
+
+    case RESULT_OVERFLOW:
+        printf("The result of the conversion is too big.");
+        break;
     }
 
     return EXIT_FAILURE;
@@ -101,6 +105,10 @@ int startBaseToDecimalConversion()
 
     case MEMORY_ERROR:
         printf("Unexpected error occurred.");
+        break;
+
+    case RESULT_OVERFLOW:
+        printf("The result of the conversion is too big.");
         break;
     }
 

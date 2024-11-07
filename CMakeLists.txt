@@ -8,7 +8,9 @@ include_directories(include)
 add_executable(NumberBaseConverter src/main.c
         src/base_conversions.c
         include/base_conversions.h
-        src/utility.c
-        include/utility.h)
+        src/string_utility.c
+        include/string_utility.h
+        src/numbers_utility.c
+        include/numbers_utility.h)
 
 target_link_libraries(NumberBaseConverter m)

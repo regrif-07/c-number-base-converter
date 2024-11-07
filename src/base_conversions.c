@@ -8,7 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <utility.h>
+#include <string_utility.h>
+
+#include "numbers_utility.h"
 
 constexpr int MIN_BASE = 2;
 constexpr int MAX_BASE = 36; // no support for bases where digits could be letters
@@ -117,8 +119,11 @@ int baseToDecimal(const char* numberStr, const int base, ConversionStatus* conve
             return 0;
         }
 
-        // unsafe add
-        result += digitValue * (int)(pow(base, numberStrLen - digitIndex - 1));
+        if (!safeIntegerAdd(result, (int)(pow(base, numberStrLen - digitIndex - 1)), &result))
+        {
+            *conversionStatus = RESULT_OVERFLOW;
+            return 0;
+        }
     }
 
     *conversionStatus = SUCCESS;

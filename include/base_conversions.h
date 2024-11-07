@@ -11,6 +11,7 @@ typedef enum
     INVALID_OPERAND,
     UNSUPPORTED_OPERAND,
     MEMORY_ERROR,
+    RESULT_OVERFLOW,
 } ConversionStatus;
 
 char* decimalToBase(const int decimal, const int base, ConversionStatus* conversionStatus);
