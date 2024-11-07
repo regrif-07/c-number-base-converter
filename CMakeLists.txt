@@ -11,6 +11,8 @@ add_executable(NumberBaseConverter src/main.c
         src/string_utility.c
         include/string_utility.h
         src/numbers_utility.c
-        include/numbers_utility.h)
+        include/numbers_utility.h
+        src/io_utility.c
+        include/io_utility.h)
 
 target_link_libraries(NumberBaseConverter m)

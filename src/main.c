@@ -5,6 +5,8 @@
 #include <stdio.h>
 
 #include <base_conversions.h>
+#include <io_utility.h>
+
 #include <stdlib.h>
 
 int startDecimalToBaseConversion();
@@ -12,9 +14,8 @@ int startBaseToDecimalConversion();
 
 int main(void)
 {
-    printf("Choose the conversion:\n1) From decimal to base\n2) From base to decimal\n> ");
-    int userChoice;
-    scanf("%d", &userChoice);
+    printf("Choose the conversion:\n1) From decimal to base\n2) From base to decimal\n");
+    const int userChoice = loopReadInteger("> ");
 
     switch (userChoice)
     {
@@ -28,13 +29,8 @@ int main(void)
 
 int startDecimalToBaseConversion()
 {
-    printf("Enter your decimal: ");
-    int decimal;
-    scanf("%d", &decimal);
-
-    printf("Enter the target base: ");
-    int base;
-    scanf("%d", &base);
+    const int decimal = loopReadInteger("Enter your decimal: ");
+    const int base = loopReadInteger("Enter the target base: ");
 
     ConversionStatus conversionStatus;
     char* conversionResult = decimalToBase(decimal, base, &conversionStatus);
@@ -70,6 +66,7 @@ int startDecimalToBaseConversion()
 
 int startBaseToDecimalConversion()
 {
+    // should be reworked
     printf("Enter your number: ");
     char* numberStr = calloc(sizeof(char), 50);
     scanf("%s", numberStr);
@@ -79,12 +76,10 @@ int startBaseToDecimalConversion()
         return EXIT_FAILURE;
     }
 
-    printf("Enter the base of your number: ");
-    int base;
-    scanf("%d", &base);
+    const int base = loopReadInteger("Enter the base of your number: ");
 
     ConversionStatus conversionStatus;
-    int conversionResult = baseToDecimal(numberStr, base, &conversionStatus);
+    const int conversionResult = baseToDecimal(numberStr, base, &conversionStatus);
     switch (conversionStatus)
     {
     case SUCCESS:
