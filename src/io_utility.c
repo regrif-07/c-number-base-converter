@@ -24,7 +24,7 @@ int loopReadInteger(const char* prompt)
 {
     while (true)
     {
-        printf(prompt);
+        printf("%s", prompt);
 
         int userInteger;
         if (readAndScanInteger(&userInteger))
@@ -53,7 +53,7 @@ long long loopReadLongLong(const char* prompt)
 {
     while (true)
     {
-        printf(prompt);
+        printf("%s", prompt);
 
         long long userLongLong;
         if (readAndScanLongLong(&userLongLong))

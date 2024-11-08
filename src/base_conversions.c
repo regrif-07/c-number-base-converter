@@ -17,9 +17,6 @@ constexpr int MAX_BASE = 36;
 
 constexpr int BUFFER_SIZE = 65; // just a general guess for good buffer size deducted from (LLONG_MAX -> binary) size
 
-// ONLY UPPERCASE CHARACTER-DIGITS ARE SUPPORTED!
-// NEGATIVE NUMBERS ARE NOT SUPPORTED!
-
 bool isValidBase(const int base)
 {
     return base >= MIN_BASE && base <= MAX_BASE;
@@ -38,6 +35,10 @@ int getDigitValue(const char digit)
     {
         return digit - '0';
     }
+    if (digit >= 'a' && digit <= 'z')
+    {
+        return digit - 'a' + 10; // letter digits are representing values greater than 9, so we add 10
+    }
     if (digit >= 'A' && digit <= 'Z')
     {
         return digit - 'A' + 10; // letter digits are representing values greater than 9, so we add 10
@@ -54,12 +55,6 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
         return nullptr;
     }
 
-    if (decimal < 0)
-    {
-        *conversionStatus = UNSUPPORTED_OPERAND;
-        return nullptr;
-    }
-
     char* resultBuffer = calloc(sizeof(char), BUFFER_SIZE);
     if (!resultBuffer)
     {
@@ -67,8 +62,10 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
         return nullptr;
     }
 
+    const bool isNegativeDecimal = decimal < 0;
+    long long quotient = isNegativeDecimal ? -decimal : decimal;
     int resultSize = 0;
-    long long quotient = decimal;
+
     while (quotient > 0)
     {
         if (resultSize > BUFFER_SIZE - 2) // index = size - 1, and we need to keep 1 for \0
@@ -83,14 +80,21 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
     }
     resultBuffer[resultSize++] = '\0';
 
+    const size_t reallocatedSize = isNegativeDecimal ? resultSize + 1 : resultSize;
     // reallocate memory to not waste unused buffer memory
-    char* resultReallocated = realloc(resultBuffer, resultSize);
+    char* resultReallocated = realloc(resultBuffer, reallocatedSize);
     if (!resultReallocated)
     {
         free(resultBuffer);
         *conversionStatus = MEMORY_ERROR;
         return nullptr;
     }
+
+    if (isNegativeDecimal)
+    {
+        resultReallocated[reallocatedSize - 2] = '-';
+    }
+    resultReallocated[reallocatedSize - 1] = '\0';
 
     reverseStringInPlace(resultReallocated);
     *conversionStatus = SUCCESS;
@@ -115,9 +119,11 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
         return 0;
     }
 
+    const bool isNegativeNumber = numberStr[0] == '-';
     const int numberStrLen = (int)(strlen(numberStr));
+
     long long result = 0;
-    for (int digitIndex = 0; digitIndex < numberStrLen - 1; ++digitIndex)
+    for (int digitIndex = isNegativeNumber ? 1 : 0; digitIndex < numberStrLen - 1; ++digitIndex)
     {
         const int digitValue = getDigitValue(numberStr[digitIndex]);
         if (digitValue >= base)
@@ -126,17 +132,20 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
             return 0;
         }
 
-        bool isOverflow = false;
-
         long long toAdd;
-        isOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
-        isOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
-        isOverflow = !safeLongLongAdd(result, toAdd, &result);
-        if (isOverflow)
+        const bool isPowOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
+        const bool isMultiplicationOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
+        const bool isAdditionOverflow = !safeLongLongAdd(result, toAdd, &result);
+        if (isPowOverflow || isMultiplicationOverflow || isAdditionOverflow)
         {
             *conversionStatus = RESULT_OVERFLOW;
             return 0;
         }
+    }
+
+    if (isNegativeNumber)
+    {
+        result *= -1;
     }
 
     *conversionStatus = SUCCESS;
