@@ -17,7 +17,6 @@ constexpr int MAX_BASE = 36;
 
 constexpr int BUFFER_SIZE = 65; // just a general guess for good buffer size deducted from (LLONG_MAX -> binary) size
 
-// ONLY UPPERCASE CHARACTER-DIGITS ARE SUPPORTED!
 // NEGATIVE NUMBERS ARE NOT SUPPORTED!
 
 bool isValidBase(const int base)
@@ -37,6 +36,10 @@ int getDigitValue(const char digit)
     if (digit >= '0' && digit <= '9')
     {
         return digit - '0';
+    }
+    if (digit >= 'a' && digit <= 'z')
+    {
+        return digit - 'a' + 10; // letter digits are representing values greater than 9, so we add 10
     }
     if (digit >= 'A' && digit <= 'Z')
     {
@@ -126,13 +129,11 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
             return 0;
         }
 
-        bool isOverflow = false;
-
         long long toAdd;
-        isOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
-        isOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
-        isOverflow = !safeLongLongAdd(result, toAdd, &result);
-        if (isOverflow)
+        const bool isPowOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
+        const bool isMultiplicationOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
+        const bool isAdditionOverflow = !safeLongLongAdd(result, toAdd, &result);
+        if (isPowOverflow || isMultiplicationOverflow || isAdditionOverflow)
         {
             *conversionStatus = RESULT_OVERFLOW;
             return 0;
