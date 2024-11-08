@@ -35,3 +35,32 @@ int loopReadInteger(const char* prompt)
         printf("Inlaid input. Try again.\n");
     }
 }
+
+bool readAndScanLongLong(long long* out)
+{
+    static char line[IO_BUFFER_SIZE];
+    int chars = 0;
+    if (!fgets(line, sizeof(line), stdin) || sscanf(line, " %lld %n", out, &chars) != 1 || line[chars] != 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+// read and scan user input for long long until actual valid input is received; return the received integer value
+long long loopReadLongLong(const char* prompt)
+{
+    while (true)
+    {
+        printf(prompt);
+
+        long long userLongLong;
+        if (readAndScanLongLong(&userLongLong))
+        {
+            return userLongLong;
+        }
+
+        printf("Inlaid input. Try again.\n");
+    }
+}

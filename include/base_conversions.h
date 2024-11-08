@@ -14,5 +14,5 @@ typedef enum
     RESULT_OVERFLOW,
 } ConversionStatus;
 
-char* decimalToBase(const int decimal, const int base, ConversionStatus* conversionStatus);
-int baseToDecimal(const char* numberStr, const int base, ConversionStatus* conversionStatus);
+char* decimalToBase(const long long decimal, const int base, ConversionStatus* conversionStatus);
+long long baseToDecimal(const char* numberStr, const int base, ConversionStatus* conversionStatus);

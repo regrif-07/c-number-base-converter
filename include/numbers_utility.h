@@ -4,4 +4,6 @@
 
 #pragma once
 
-bool safeIntegerAdd(const int firstOperand, const int secondOperand, int* sum);
+bool safeLongLongAdd(const long long firstOperand, const long long secondOperand, long long* out);
+bool safeLongLongMultiply(const long long firstOperand, const long long secondOperand, long long* out);
+bool safeLongLongPow(const long long base, const unsigned long long exponent, long long* out);
