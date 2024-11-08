@@ -17,8 +17,6 @@ constexpr int MAX_BASE = 36;
 
 constexpr int BUFFER_SIZE = 65; // just a general guess for good buffer size deducted from (LLONG_MAX -> binary) size
 
-// NEGATIVE NUMBERS ARE NOT SUPPORTED!
-
 bool isValidBase(const int base)
 {
     return base >= MIN_BASE && base <= MAX_BASE;
@@ -57,12 +55,6 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
         return nullptr;
     }
 
-    if (decimal < 0)
-    {
-        *conversionStatus = UNSUPPORTED_OPERAND;
-        return nullptr;
-    }
-
     char* resultBuffer = calloc(sizeof(char), BUFFER_SIZE);
     if (!resultBuffer)
     {
@@ -70,8 +62,10 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
         return nullptr;
     }
 
+    const bool isNegativeDecimal = decimal < 0;
+    long long quotient = isNegativeDecimal ? -decimal : decimal;
     int resultSize = 0;
-    long long quotient = decimal;
+
     while (quotient > 0)
     {
         if (resultSize > BUFFER_SIZE - 2) // index = size - 1, and we need to keep 1 for \0
@@ -86,14 +80,21 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
     }
     resultBuffer[resultSize++] = '\0';
 
+    const size_t reallocatedSize = isNegativeDecimal ? resultSize + 1 : resultSize;
     // reallocate memory to not waste unused buffer memory
-    char* resultReallocated = realloc(resultBuffer, resultSize);
+    char* resultReallocated = realloc(resultBuffer, reallocatedSize);
     if (!resultReallocated)
     {
         free(resultBuffer);
         *conversionStatus = MEMORY_ERROR;
         return nullptr;
     }
+
+    if (isNegativeDecimal)
+    {
+        resultReallocated[reallocatedSize - 2] = '-';
+    }
+    resultReallocated[reallocatedSize - 1] = '\0';
 
     reverseStringInPlace(resultReallocated);
     *conversionStatus = SUCCESS;
