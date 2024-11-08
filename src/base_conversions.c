@@ -119,9 +119,11 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
         return 0;
     }
 
+    const bool isNegativeNumber = numberStr[0] == '-';
     const int numberStrLen = (int)(strlen(numberStr));
+
     long long result = 0;
-    for (int digitIndex = 0; digitIndex < numberStrLen - 1; ++digitIndex)
+    for (int digitIndex = isNegativeNumber ? 1 : 0; digitIndex < numberStrLen - 1; ++digitIndex)
     {
         const int digitValue = getDigitValue(numberStr[digitIndex]);
         if (digitValue >= base)
@@ -139,6 +141,11 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
             *conversionStatus = RESULT_OVERFLOW;
             return 0;
         }
+    }
+
+    if (isNegativeNumber)
+    {
+        result *= -1;
     }
 
     *conversionStatus = SUCCESS;
