@@ -66,13 +66,12 @@ int startDecimalToBaseConversion()
 
 int startBaseToDecimalConversion()
 {
-    // should be reworked
     printf("Enter your number: ");
-    char* numberStr = calloc(sizeof(char), 50);
-    scanf("%s", numberStr);
-    if (!numberStr)
+    char* numberStr = nullptr;
+    size_t numberStrLen;
+    if (getline(&numberStr, &numberStrLen, stdin) < 0) // if it failed to read a line...
     {
-        printf("Invalid input.");
+        printf("Unexpected error occurred.");
         return EXIT_FAILURE;
     }
 
