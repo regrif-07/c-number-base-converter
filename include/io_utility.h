@@ -6,3 +6,6 @@
 
 bool readAndScanInteger(int* out);
 int loopReadInteger(const char* prompt);
+
+bool readAndScanLongLong(long long* out);
+long long loopReadLongLong(const char* prompt);

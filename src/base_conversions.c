@@ -13,9 +13,9 @@
 #include "numbers_utility.h"
 
 constexpr int MIN_BASE = 2;
-constexpr int MAX_BASE = 36; // no support for bases where digits could be letters
+constexpr int MAX_BASE = 36;
 
-constexpr int BUFFER_SIZE = 50; // just a general guess for good buffer size
+constexpr int BUFFER_SIZE = 65; // just a general guess for good buffer size deducted from (LLONG_MAX -> binary) size
 
 // ONLY UPPERCASE CHARACTER-DIGITS ARE SUPPORTED!
 // NEGATIVE NUMBERS ARE NOT SUPPORTED!
@@ -26,7 +26,7 @@ bool isValidBase(const int base)
 }
 
 // will NOT check if digit is correct with respect to the base
-char getDigitByReminder(const int reminder)
+char getDigitByReminder(const long long reminder)
 {
     return (reminder < 10) ? (char)('0' + reminder) : (char)('A' + (reminder - 10));
 }
@@ -46,7 +46,7 @@ int getDigitValue(const char digit)
     return -1;
 }
 
-char* decimalToBase(const int decimal, const int base, ConversionStatus* conversionStatus)
+char* decimalToBase(const long long decimal, const int base, ConversionStatus* conversionStatus)
 {
     if (!isValidBase(base))
     {
@@ -68,7 +68,7 @@ char* decimalToBase(const int decimal, const int base, ConversionStatus* convers
     }
 
     int resultSize = 0;
-    int quotient = decimal;
+    long long quotient = decimal;
     while (quotient > 0)
     {
         if (resultSize > BUFFER_SIZE - 2) // index = size - 1, and we need to keep 1 for \0
@@ -92,16 +92,23 @@ char* decimalToBase(const int decimal, const int base, ConversionStatus* convers
         return nullptr;
     }
 
-    *conversionStatus = SUCCESS;
     reverseStringInPlace(resultReallocated);
+    *conversionStatus = SUCCESS;
+
     // there is no memory leak here, realloc() analysis is incorrect
     // we cannot free(resultBuffer) here because it will result in a double free in case of realloc() success
     return resultReallocated;
 }
 
 // use the return value only after checking the conversionStatus
-int baseToDecimal(const char* numberStr, const int base, ConversionStatus* conversionStatus)
+long long baseToDecimal(const char* numberStr, const int base, ConversionStatus* conversionStatus)
 {
+    if (!numberStr)
+    {
+        *conversionStatus = INVALID_OPERAND;
+        return 0;
+    }
+
     if (!isValidBase(base))
     {
         *conversionStatus = INVALID_BASE;
@@ -109,8 +116,8 @@ int baseToDecimal(const char* numberStr, const int base, ConversionStatus* conve
     }
 
     const int numberStrLen = (int)(strlen(numberStr));
-    int result = 0;
-    for (int digitIndex = 0; digitIndex < numberStrLen; ++digitIndex)
+    long long result = 0;
+    for (int digitIndex = 0; digitIndex < numberStrLen - 1; ++digitIndex)
     {
         const int digitValue = getDigitValue(numberStr[digitIndex]);
         if (digitValue >= base)
@@ -119,7 +126,13 @@ int baseToDecimal(const char* numberStr, const int base, ConversionStatus* conve
             return 0;
         }
 
-        if (!safeIntegerAdd(result, (int)(pow(base, numberStrLen - digitIndex - 1)), &result))
+        bool isOverflow = false;
+
+        long long toAdd;
+        isOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
+        isOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
+        isOverflow = !safeLongLongAdd(result, toAdd, &result);
+        if (isOverflow)
         {
             *conversionStatus = RESULT_OVERFLOW;
             return 0;

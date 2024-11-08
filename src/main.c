@@ -29,7 +29,7 @@ int main(void)
 
 int startDecimalToBaseConversion()
 {
-    const int decimal = loopReadInteger("Enter your decimal: ");
+    const long long decimal = loopReadLongLong("Enter your decimal: ");
     const int base = loopReadInteger("Enter the target base: ");
 
     ConversionStatus conversionStatus;
@@ -78,11 +78,11 @@ int startBaseToDecimalConversion()
     const int base = loopReadInteger("Enter the base of your number: ");
 
     ConversionStatus conversionStatus;
-    const int conversionResult = baseToDecimal(numberStr, base, &conversionStatus);
+    const long long conversionResult = baseToDecimal(numberStr, base, &conversionStatus);
     switch (conversionStatus)
     {
     case SUCCESS:
-        printf("Result: %d\n", conversionResult);
+        printf("Result: %lld\n", conversionResult);
         return EXIT_SUCCESS;
 
     case INVALID_BASE:
