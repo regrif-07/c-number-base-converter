@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 
 constexpr int IO_BUFFER_SIZE = 4096;
 
@@ -62,5 +63,29 @@ long long loopReadLongLong(const char* prompt)
         }
 
         printf("Inlaid input. Try again.\n");
+    }
+}
+
+char* readLine(const char* prompt, const bool discardEmpty)
+{
+    while (true)
+    {
+        printf("%s", prompt);
+
+        char* userString = nullptr;
+        size_t numberStrLen;
+        if (getline(&userString, &numberStrLen, stdin) < 0) // if getline() failed to read a line...
+        {
+            printf("Unexpected error occurred.");
+            continue;
+        }
+
+        if (discardEmpty && strlen(userString) == 0)
+        {
+            printf("Empty input is not supported.");
+            continue;
+        }
+
+        return userString;
     }
 }
