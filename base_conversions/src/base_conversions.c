@@ -23,9 +23,10 @@ bool isValidBase(const int base)
 }
 
 // will NOT check if digit is correct with respect to the base
-char getDigitByReminder(const long long reminder)
+char getDigitByReminder(const int reminder)
 {
-    return (reminder < 10) ? (char)('0' + reminder) : (char)('A' + (reminder - 10));
+    const int absReminder = abs(reminder);
+    return (reminder < 10) ? (char)('0' + absReminder) : (char)('A' + (absReminder - 10));
 }
 
 // returns -1 in case digit is invalid
@@ -66,7 +67,7 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
     long long quotient = isNegativeDecimal ? -decimal : decimal;
     int resultSize = 0;
 
-    while (quotient > 0)
+    while (quotient != 0)
     {
         if (resultSize > BUFFER_SIZE - 2) // index = size - 1, and we need to keep 1 for \0
         {
@@ -75,8 +76,12 @@ char* decimalToBase(const long long decimal, const int base, ConversionStatus* c
             return nullptr;
         }
 
-        resultBuffer[resultSize++] = getDigitByReminder(quotient % base);
+        resultBuffer[resultSize++] = getDigitByReminder((int)(quotient % base));
         quotient /= base;
+    }
+    if (resultSize == 0)
+    {
+        resultBuffer[resultSize++] = '0';
     }
     resultBuffer[resultSize++] = '\0';
 
@@ -123,7 +128,7 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
     const int numberStrLen = (int)(strlen(numberStr));
 
     long long result = 0;
-    for (int digitIndex = isNegativeNumber ? 1 : 0; digitIndex < numberStrLen - 1; ++digitIndex)
+    for (int digitIndex = isNegativeNumber ? 1 : 0; digitIndex < numberStrLen; ++digitIndex)
     {
         const int digitValue = getDigitValue(numberStr[digitIndex]);
         if (digitValue >= base)
@@ -133,9 +138,11 @@ long long baseToDecimal(const char* numberStr, const int base, ConversionStatus*
         }
 
         long long toAdd;
-        const bool isPowOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 2, &toAdd);
+        const bool isPowOverflow = !safeLongLongPow(base, numberStrLen - digitIndex - 1, &toAdd);
         const bool isMultiplicationOverflow = !safeLongLongMultiply(digitValue, toAdd, &toAdd);
+
         const bool isAdditionOverflow = !safeLongLongAdd(result, toAdd, &result);
+
         if (isPowOverflow || isMultiplicationOverflow || isAdditionOverflow)
         {
             *conversionStatus = RESULT_OVERFLOW;

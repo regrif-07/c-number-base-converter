@@ -94,11 +94,11 @@ void startConversionSession(ConversionStatus (*singleConversionStarter)())
             continue;
 
         case MEMORY_ERROR:
-            printf("Error: memory error occurred while trying to process the conversion.");
+            printf("Error: memory error occurred while trying to process the conversion.\n");
             continue;
 
         case RESULT_OVERFLOW:
-            printf("Error: the result of the conversion is too big/small.");
+            printf("Error: the result of the conversion is too big/small.\n");
             continue;
 
         default:

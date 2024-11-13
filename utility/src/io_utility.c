@@ -72,20 +72,25 @@ char* readLine(const char* prompt, const bool discardEmpty)
     {
         printf("%s", prompt);
 
-        char* userString = nullptr;
-        size_t numberStrLen;
-        if (getline(&userString, &numberStrLen, stdin) < 0) // if getline() failed to read a line...
+        char* line = nullptr;
+        size_t buffSize;
+        if (getline(&line, &buffSize, stdin) < 0) // if getline() failed to read a line...
         {
             printf("Unexpected error occurred.");
             continue;
         }
 
-        if (discardEmpty && strlen(userString) == 0)
+        const size_t lineLen = strlen(line);
+        if (discardEmpty && lineLen == 0)
         {
             printf("Empty input is not supported.");
             continue;
         }
+        if (line[lineLen - 1] == '\n')
+        {
+            line[lineLen - 1] = '\0';
+        }
 
-        return userString;
+        return line;
     }
 }
