@@ -9,22 +9,16 @@
 #include <limits.h>
 #include <stdlib.h>
 
-void setUp(void)
-{
-}
+void setUp(void) {}
+void tearDown(void) {}
 
-void tearDown(void)
-{
-}
-
-// helper to verify conversion round-trip
-void testConversionRoundTrip(const long long decimal, const int base)
-{
-    ConversionStatus status;
+// Helper to verify conversion round-trip
+void test_conversion_round_trip(long long decimal, int base) {
+    ConversionStatus status = SUCCESS;
     char* baseStr = decimalToBase(decimal, base, &status);
     TEST_ASSERT_EQUAL(SUCCESS, status);
 
-    const long long resultDecimal = baseToDecimal(baseStr, base, &status);
+    long long resultDecimal = baseToDecimal(baseStr, base, &status);
     TEST_ASSERT_EQUAL(SUCCESS, status);
     TEST_ASSERT_EQUAL(decimal, resultDecimal);
 
@@ -32,22 +26,20 @@ void testConversionRoundTrip(const long long decimal, const int base)
 }
 
 // Test valid conversions
-void testRoundTripsValid()
-{
-    testConversionRoundTrip(0, 2);
-    testConversionRoundTrip(1, 2);
-    testConversionRoundTrip(-1, 16);
-    testConversionRoundTrip(255, 16);
-    testConversionRoundTrip(-12345, 36);
-    testConversionRoundTrip(LLONG_MAX, 2);
-    // testConversionRoundTrip(LLONG_MIN, 10); // not supported due to difference between LLONG_MIN and LLONG_MAX
+void test_decimalToBase_baseToDecimal_valid() {
+    test_conversion_round_trip(0, 2);
+    test_conversion_round_trip(1, 2);
+    test_conversion_round_trip(-1, 16);
+    test_conversion_round_trip(255, 16);
+    test_conversion_round_trip(-12345, 36);
+    test_conversion_round_trip(LLONG_MAX, 2);
+    test_conversion_round_trip(LLONG_MIN, 10);
 }
 
 // Test invalid base
-void testInvalidBase()
-{
+void test_invalid_base() {
     ConversionStatus status;
-    const char* result = decimalToBase(123, 1, &status);
+    char* result = decimalToBase(123, 1, &status);
     TEST_ASSERT_EQUAL(INVALID_BASE, status);
     TEST_ASSERT_NULL(result);
 
@@ -63,8 +55,7 @@ void testInvalidBase()
 }
 
 // Test edge cases (e.g., zero, min, max)
-void testEdgeCases()
-{
+void test_edge_cases() {
     ConversionStatus status;
 
     // Zero conversion
@@ -76,7 +67,7 @@ void testEdgeCases()
     // Maximum positive integer
     char* maxStr = decimalToBase(LLONG_MAX, 16, &status);
     TEST_ASSERT_EQUAL(SUCCESS, status);
-    const long long maxVal = baseToDecimal(maxStr, 16, &status);
+    long long maxVal = baseToDecimal(maxStr, 16, &status);
     TEST_ASSERT_EQUAL(SUCCESS, status);
     TEST_ASSERT_EQUAL(LLONG_MAX, maxVal);
     free(maxStr);
@@ -84,14 +75,14 @@ void testEdgeCases()
     // Minimum negative integer
     char* minStr = decimalToBase(LLONG_MIN, 10, &status);
     TEST_ASSERT_EQUAL(SUCCESS, status);
-    const long long minVal = baseToDecimal(minStr, 10, &status);
-    TEST_ASSERT_EQUAL(RESULT_OVERFLOW, status);
+    long long minVal = baseToDecimal(minStr, 10, &status);
+    TEST_ASSERT_EQUAL(SUCCESS, status);
+    TEST_ASSERT_EQUAL(LLONG_MIN, minVal);
     free(minStr);
 }
 
 // Test non-numeric input and invalid characters
-void testInvalidCharacters()
-{
+void test_invalid_characters() {
     ConversionStatus status;
     long long result = baseToDecimal("123G", 16, &status); // 'G' is invalid in base 16
     TEST_ASSERT_EQUAL(INVALID_OPERAND, status);
@@ -100,25 +91,32 @@ void testInvalidCharacters()
     TEST_ASSERT_EQUAL(INVALID_OPERAND, status);
 }
 
+// Test memory error handling (simulated by very large buffer usage)
+void test_buffer_overflow_handling() {
+    ConversionStatus status;
+    char* result = decimalToBase(LLONG_MAX, 2, &status); // Testing near buffer limit
+    TEST_ASSERT_EQUAL(SUCCESS, status);
+    free(result);
+}
+
 // Test overflow in power, multiplication, addition operations
-void testOverflowHandling()
-{
+void test_overflow_handling() {
     ConversionStatus status;
 
     // Overflow in power, e.g., large number in a large base
-    long long result = baseToDecimal("ZZZZZZZZZZZZZZZZZZZ", 36, &status); // Likely overflow in decimal
+    long long result = baseToDecimal("ZZZZZZZZZZZ", 36, &status); // Likely overflow in decimal
     TEST_ASSERT_EQUAL(RESULT_OVERFLOW, status);
 }
 
-int main(void)
-{
+int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(testRoundTripsValid);
-    RUN_TEST(testInvalidBase);
-    RUN_TEST(testEdgeCases);
-    RUN_TEST(testInvalidCharacters);
-    RUN_TEST(testOverflowHandling);
+    RUN_TEST(test_decimalToBase_baseToDecimal_valid);
+    RUN_TEST(test_invalid_base);
+    RUN_TEST(test_edge_cases);
+    RUN_TEST(test_invalid_characters);
+    RUN_TEST(test_buffer_overflow_handling);
+    RUN_TEST(test_overflow_handling);
 
     return UNITY_END();
 }
