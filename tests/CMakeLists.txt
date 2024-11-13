@@ -1,0 +1,4 @@
+add_executable(test_base_conversions src/test_base_conversions.c)
+target_link_libraries(test_base_conversions PRIVATE base_conversions unity)
+target_include_directories(test_base_conversions PRIVATE ${unity_SOURCE_DIR}/src/)
+add_test(NAME TestBaseConversions COMMAND test_base_conversions)
