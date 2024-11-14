@@ -6,4 +6,4 @@ A simple console UI is provided - system of menus, where you can choose between 
 
 This project will not be updated as I see it as complete.
 
-P.S. This repo lacks issues because it was initially hosted on another service.
+P.S. This repo lacks issues and some branches because it was initially hosted on another service.
